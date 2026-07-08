@@ -1,0 +1,177 @@
+# DAX Measures and Calculated Columns
+
+> Replace `'credit_test'` with your final table name if needed.
+
+## Measures
+
+### Total Loan Amount
+```DAX
+Total Loan Amount = SUM('credit_test'[Current Loan Amount])
+```
+
+### Loan Count
+```DAX
+Loan Count = COUNT('credit_test'[Loan ID])
+```
+
+### Avg Loan Amount
+```DAX
+Avg Loan Amount = DIVIDE([Total Loan Amount], [Loan Count], 0)
+```
+
+### Avg Annual Income
+```DAX
+Avg Annual Income = AVERAGE('credit_test'[Annual Income])
+```
+
+### Avg Credit Score
+```DAX
+Avg Credit Score = AVERAGE('credit_test'[Credit Score])
+```
+
+### Avg Monthly Debt
+```DAX
+Avg Monthly Debt = AVERAGE('credit_test'[Monthly Debt])
+```
+
+### Delinquency Count
+```DAX
+Delinquency Count =
+CALCULATE(
+    COUNT('credit_test'[Loan ID]),
+    'credit_test'[Delinquency Flag] = "Yes"
+)
+```
+
+### Delinquency Rate
+```DAX
+Delinquency Rate = DIVIDE([Delinquency Count], [Loan Count], 0)
+```
+
+### Bankruptcy Count
+```DAX
+Bankruptcy Count =
+CALCULATE(
+    COUNT('credit_test'[Loan ID]),
+    'credit_test'[Bankruptcy Flag] = "Yes"
+)
+```
+
+### Bankruptcy Rate
+```DAX
+Bankruptcy Rate = DIVIDE([Bankruptcy Count], [Loan Count], 0)
+```
+
+### Tax Lien Count
+```DAX
+Tax Lien Count =
+CALCULATE(
+    COUNT('credit_test'[Loan ID]),
+    'credit_test'[Tax Lien Flag] = "Yes"
+)
+```
+
+### Tax Lien Rate
+```DAX
+Tax Lien Rate = DIVIDE([Tax Lien Count], [Loan Count], 0)
+```
+
+### Avg Credit Utilization
+```DAX
+Avg Credit Utilization =
+AVERAGEX(
+    'credit_test',
+    DIVIDE(
+        'credit_test'[Current Credit Balance],
+        'credit_test'[Maximum Open Credit],
+        0
+    )
+)
+```
+
+### Avg Debt-to-Income Ratio
+```DAX
+Avg Debt-to-Income Ratio =
+AVERAGEX(
+    'credit_test',
+    DIVIDE(
+        'credit_test'[Monthly Debt],
+        'credit_test'[Annual Income],
+        0
+    )
+)
+```
+
+### Portfolio Health Score
+```DAX
+Portfolio Health Score =
+100
+- ([Delinquency Rate] * 100 * 0.4)
+- ([Bankruptcy Rate] * 100 * 0.3)
+- ([Tax Lien Rate] * 100 * 0.3)
+```
+
+---
+
+## Calculated Columns
+
+### Bankruptcy Flag
+```DAX
+Bankruptcy Flag =
+IF('credit_test'[Bankruptcies] > 0, "Yes", "No")
+```
+
+### Tax Lien Flag
+```DAX
+Tax Lien Flag =
+IF('credit_test'[Tax Liens] > 0, "Yes", "No")
+```
+
+### Delinquency Flag
+```DAX
+Delinquency Flag =
+IF(
+    NOT(ISBLANK('credit_test'[Months since last delinquent])),
+    "Yes",
+    "No"
+)
+```
+
+### Income Band
+```DAX
+Income Band =
+SWITCH(
+    TRUE(),
+    'credit_test'[Annual Income] < 500000, "< 5L",
+    'credit_test'[Annual Income] < 1000000, "5L - 10L",
+    'credit_test'[Annual Income] < 1500000, "10L - 15L",
+    'credit_test'[Annual Income] < 2500000, "15L - 25L",
+    "25L+"
+)
+```
+
+### Risk Band
+```DAX
+Risk Band =
+SWITCH(
+    TRUE(),
+    'credit_test'[Credit Score] < 580, "Poor",
+    'credit_test'[Credit Score] < 670, "Fair",
+    'credit_test'[Credit Score] < 740, "Good",
+    'credit_test'[Credit Score] < 800, "Very Good",
+    "Excellent"
+)
+```
+
+### Loan Amount Band
+```DAX
+Loan Amount Band =
+SWITCH(
+    TRUE(),
+    'credit_test'[Current Loan Amount] < 100000, "< 1L",
+    'credit_test'[Current Loan Amount] < 300000, "1L - 3L",
+    'credit_test'[Current Loan Amount] < 500000, "3L - 5L",
+    'credit_test'[Current Loan Amount] < 1000000, "5L - 10L",
+    "10L+"
+)
+```

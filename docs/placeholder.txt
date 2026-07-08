@@ -1,1 +1,1 @@
-.
+This folder contains project notes, data cleaning notes, and DAX documentation.
